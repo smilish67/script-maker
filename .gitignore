@@ -1,0 +1,9 @@
+config.js
+.venv
+node_modules
+contents
+script-maker
+*.wav
+test
+.env
+dataset
