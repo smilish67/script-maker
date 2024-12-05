@@ -7,3 +7,4 @@ script-maker
 test
 .env
 dataset
+origin_dataset/
