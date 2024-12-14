@@ -1,0 +1,153 @@
+/* 오버레이 (화면 가리는 배경) */
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    display: none;
+}
+
+/* 모달 창 */
+#modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40vw;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+}
+
+.modal-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.menu-options {
+    display: none;
+    position: absolute;  /* 메뉴를 캐릭터에 상대적으로 위치시킴 */
+    top: 100%;  /* 캐릭터의 아래쪽에 위치 */
+    left: 0;    /* 캐릭터의 왼쪽에 정렬 */
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 200px; /* 메뉴의 크기 */
+    z-index: 1002; /* 메뉴가 캐릭터 위에 표시되도록 */
+}
+
+.menu-options button {
+    display: block;
+    padding: 10px;
+    width: 100%;
+    text-align: left;
+    background-color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.menu-options button:hover {
+    background-color: #f0f0f0;
+}
+
+.actor {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin: 10px;
+}
+
+.actor-name{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.actor-name:hover{
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+
+.sample-audio {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.audio-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.play-button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.play-button:active {
+    background-color: #0056b3;
+}

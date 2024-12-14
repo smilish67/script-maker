@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEMP</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/modal.css') }}">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>TEMP</h1>
+    </header>
+<!-- audio navi-->
+ <div class="audio-navi">
+    <audio id="audio-navi" src=""></audio>
+</div>
+
+<!-- modal -->
+    <div id="overlay" class="hidden"></div>
+    <div id="modal" class="hidden">
+        <div class="modal-content">
+            <h2 id="char_id">캐릭터 정보</h2>
+            <p>
+                현재 성우 정보:
+                <span id="cur_actor_id">
+                    없음
+                </span>
+            </p>
+            <div class="actor-list">
+                {% for voice in voice_info %}
+                <div class="actor">
+                    <div class="actor-name" onclick="setActor(this)">
+                        {{ voice }}
+                    </div>
+                    <div class="sample-audio">
+                        <div class="audio-player">
+                            <!-- Hidden audio element -->
+                            무감정:
+                            <audio id="audio-nx-{{voice}}" src="/voices/{{voice}}/sample_neutral.wav"></audio>
+                            <!-- Custom play button -->
+                            <button class="play-button" onclick="playAudio('audio-nx-{{voice}}')">▶</button>
+                        </div>
+                        <div class="audio-player">
+                            슬픔:
+                            <!-- Hidden audio element -->
+                            <audio id="audio-s-{{voice}}" src="/voices/{{voice}}/sample_sad.wav"></audio>
+                            
+                            <!-- Custom play button -->
+                            <button class="play-button" onclick="playAudio('audio-s-{{voice}}')">▶</button>
+                        </div>
+                        <div class="audio-player">
+                            화남:
+                            <!-- Hidden audio element -->
+                            <audio id="audio-a-{{voice}}" src="/voices/{{voice}}/sample_angry.wav"></audio>
+                            
+                            <!-- Custom play button -->
+                            <button class="play-button"  onclick="playAudio('audio-a-{{voice}}')">▶</button>
+                        </div>
+                        <div class="audio-player">
+                            기쁨:
+                            <!-- Hidden audio element -->
+                            <audio id="audio-h-{{voice}}" src="/voices/{{voice}}/sample_happy.wav"></audio>
+                            
+                            <!-- Custom play button -->
+                            <button class="play-button"  onclick="playAudio('audio-h-{{voice}}')">▶</button>
+                        </div>
+                    </div>
+                </div>   
+                {% endfor %}
+            </div>
+            <button id="close-modal">닫기</button>
+        </div>
+    </div>
+
+    <main>
+        {% for i in range(0, image_list|length, 5) %}
+        <div class="batch {{ i // 5 }}" id="batch-{{ i // 5 }}">
+            <div class="container webtoon_container">
+                {% for j in range(i, i + 5) %}
+                    {% if j < image_list|length %}
+                        <img src="/images/{{ image_list[j] }}" alt="webtoon_image">
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="container script_container">
+                <div class="batch-title">
+                    <div class="audio-batch" onclick="convertBatchAudio('batch-{{ i // 5 }}')">배치별 변환하기</div>
+                </div>
+                <div class="batch-play" id="batch-audio-{{ i // 5 }}" onclick="playBatchAudio('batch-{{ i // 5 }}')">
+                    배치 재생하기
+                    <audio id="audio-batch-{{ i // 5 }}" src=""></audio>
+                </div>
+                {% set cur_batch = i // 5 %}
+                {% for dialog in script_list[cur_batch]['script']['dialogue'] %}
+                <div class="script" id="script-{{ cur_batch }}-{{ loop.index0 }}">
+                    <div class="character" onclick="open_menu(this)">{{ "{" + dialog['speaker_id']+"}" }}</div>
+                    <div class="dialogue" onclick="edit_dialog(this)">{{ dialog['text'] }}</div>
+                    <div class="audio" onclick="audioMaker('script-{{ cur_batch }}-{{ loop.index0 }}')">
+                        변환하기
+                    </div>
+                    <audio id="audio-{{ cur_batch }}-{{ loop.index0 }}" src=""></audio>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+</body>
+</html>
+<script src="{{url_for('static', path='js/scripts.js')}}"></script>
+<script src="{{url_for('static', path='js/tool.js')}}"></script>

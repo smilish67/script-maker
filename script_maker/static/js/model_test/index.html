@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket TTS Streaming with Reference Audio</title>
+    <style>
+                    
+/* Darkened background overlay */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's above other elements */
+}
+
+/* Spinner for loading animation */
+.loadingSpinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid #ccc; /* Light gray */
+    border-top: 6px solid #1d72b8; /* Blue */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="text"] {
+            padding: 10px;
+            margin: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+        input[type="file"] {
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        audio {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" style="display: none;">
+    <div class="loadingSpinner"></div>
+    
+    </div>
+    <h1>WebSocket TTS Streaming with Reference Audio</h1>
+    <div>[neu] 중립체 \n [ana] [anb] [anc] 화남 정도 \n [saa] [sab] [sac] 슬픔정도 \n [haa] [hab] [hac] 행복정도\n 레퍼런스도 해당 감정에 맞춰 주어야 성능이 있네요. 여자목소리는 남자처럼 들립니다.</div>
+    <input id="textInput" type="text" placeholder="Enter text" />
+    <input id="audioInput" type="file" accept="audio/*" />
+    <button onclick="startTTS()">Start TTS</button>
+    <script>
+        async function startTTS() {
+            const text = document.getElementById('textInput').value;
+            const audioFile = document.getElementById('audioInput').files[0];
+            const socket = new WebSocket("ws://112.133.88.222:5866/ws");
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            loadingOverlay.style.display = 'flex';
+                    
+                    
+            // WebSocket이 열리면 텍스트와 오디오 파일을 전송
+            socket.onopen = async () => {
+                // 전송할 텍스트
+                socket.send(JSON.stringify({ text }));
+
+                // 전송할 레퍼런스 오디오 파일
+                if (audioFile) {
+                    const arrayBuffer = await audioFile.arrayBuffer();
+                    socket.send(arrayBuffer);
+                }
+            };
+
+            socket.onmessage = async (event) => {
+                if (event.data === "Audio generation complete") {
+                    console.log("Audio generation complete, closing WebSocket...");
+                    socket.close(); // Close the WebSocket connection after receiving the complete message
+                }
+                
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Check if received data is Blob or ArrayBuffer
+                if (event.data instanceof Blob) {
+                    console.log("Received Blob, converting to ArrayBuffer...");
+
+                    // Convert Blob to ArrayBuffer
+                    const arrayBuffer = await event.data.arrayBuffer();
+
+                    try {
+                        // Decode the ArrayBuffer to AudioBuffer
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                        // Play the audio
+                        const source = audioContext.createBufferSource();
+                        source.buffer = audioBuffer;
+                        source.connect(audioContext.destination);
+                        source.start();
+
+                        console.log("Audio playback started");
+                    } catch (err) {
+                        loadingOverlay.style.display = 'none';
+                        console.error("Error decoding audio data:", err);
+                    }
+                } else if (event.data instanceof ArrayBuffer) {
+                    console.log("Received ArrayBuffer directly.");
+                    try {
+                        // Decode the ArrayBuffer to AudioBuffer
+                        const audioBuffer = await audioContext.decodeAudioData(event.data);
+
+                        // Play the audio
+                        const source = audioContext.createBufferSource();
+                        source.buffer = audioBuffer;
+                        source.connect(audioContext.destination);
+                        source.start();
+
+                        console.log("Audio playback started");
+                    } catch (err) {
+                        loadingOverlay.style.display = 'none';
+                        console.error("Error decoding audio data:", err);
+                    }
+                } else {
+                    loadingOverlay.style.display = 'none';
+                    console.error("Received unknown data type.");
+                }
+                socket.onclose = () => {
+                        console.log("WebSocket closed");
+                        // Hide the loading overlay when done
+                        loadingOverlay.style.display = 'none';
+                    };
+                                    
+                socket.onerror = (error) => {
+                    console.error("WebSocket error:", error);
+                    alert("Error with WebSocket connection.");
+                    // Hide the loading overlay on error
+                    loadingOverlay.style.display = 'none';
+                };
+            };
+        }
+    </script>
+</body>
+</html>
